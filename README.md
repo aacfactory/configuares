@@ -1,0 +1,2 @@
+# configuares
+Configuare for Golang

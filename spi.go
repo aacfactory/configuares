@@ -16,11 +16,9 @@
 
 package configuares
 
-
 type Config interface {
 	As(v interface{}) (err error)
 	Get(path string, v interface{}) (has bool, err error)
-	Raw() (raw []byte)
 }
 
 type Store interface {

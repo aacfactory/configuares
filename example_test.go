@@ -17,6 +17,7 @@
 package configuares_test
 
 import (
+	"encoding/json"
 	"github.com/aacfactory/configuares"
 	"path/filepath"
 	"testing"
@@ -50,9 +51,11 @@ func Test_JsonConfig(t *testing.T) {
 		return
 	}
 
-	t.Log(string(config.Raw()))
-}
+	raw := json.RawMessage{}
+	_ = config.As(&raw)
 
+	t.Log(string(raw))
+}
 
 func Test_YamlConfig(t *testing.T) {
 
@@ -82,5 +85,12 @@ func Test_YamlConfig(t *testing.T) {
 		return
 	}
 
-	t.Log(string(config.Raw()))
+	raw := json.RawMessage{}
+	_ = config.As(&raw)
+
+	t.Log(string(raw))
+
+	http := configuares.Raw{}
+	has, getErr := config.Get("http", &http)
+	t.Log(string(http), has, getErr)
 }

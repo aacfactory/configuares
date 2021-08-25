@@ -55,7 +55,7 @@ type Retriever struct {
 	store  Store
 }
 
-func (retriever *Retriever) Get() (config Config, err error) {
+func (retriever *Retriever) Get() (v Config, err error) {
 	root, subs, readErr := retriever.store.Read()
 	if readErr != nil {
 		err = fmt.Errorf("config retriever get failed, %v", readErr)
@@ -65,28 +65,33 @@ func (retriever *Retriever) Get() (config Config, err error) {
 		err = fmt.Errorf("config retriever get failed, not found")
 		return
 	}
-	if retriever.active == "" {
-		if retriever.format == "JSON" {
-			if !gjson.ValidBytes(root) {
-				err = fmt.Errorf(" config retriever get failed, bad json content")
-				return
-			}
-			config = &JsonConfig{
-				raw: root,
-			}
-		} else if retriever.format == "YAML" {
-			_, validErr := yaml.YAMLToJSON(root)
-			if validErr != nil {
-				err = fmt.Errorf("config retriever get failed, bad yaml content")
-				return
-			}
-			config = &YamlConfig{
-				raw: root,
-			}
-		} else {
-			err = fmt.Errorf("config retriever get failed, format is unsupported")
+
+	if retriever.format == "JSON" {
+		if !gjson.ValidBytes(root) {
+			err = fmt.Errorf(" config retriever get failed, invalid json content")
 			return
 		}
+	} else if retriever.format == "YAML" {
+		mapped, validErr := yaml.YAMLToJSON(root)
+		if validErr != nil {
+			err = fmt.Errorf("config retriever get failed, invalid yaml content")
+			return
+		}
+		if !gjson.ValidBytes(mapped) {
+			err = fmt.Errorf("config retriever get failed, invalid yaml content")
+			return
+		}
+		root = mapped
+	} else {
+		err = fmt.Errorf("config retriever get failed, format is unsupported")
+		return
+	}
+
+	if retriever.active == "" {
+		v = &config{
+			raw: root,
+		}
+		return
 	}
 
 	if subs == nil || len(subs) == 0 {
@@ -99,30 +104,38 @@ func (retriever *Retriever) Get() (config Config, err error) {
 		err = fmt.Errorf("config retriever get failed, ative(%s) is not found", retriever.active)
 		return
 	}
+	if retriever.format == "JSON" {
+		if !gjson.ValidBytes(sub) {
+			err = fmt.Errorf(" config retriever get failed, invalid json content")
+			return
+		}
+	} else if retriever.format == "YAML" {
+		mapped, validErr := yaml.YAMLToJSON(sub)
+		if validErr != nil {
+			err = fmt.Errorf("config retriever get failed, invalid yaml content")
+			return
+		}
+		if !gjson.ValidBytes(mapped) {
+			err = fmt.Errorf("config retriever get failed, invalid yaml content")
+			return
+		}
+		sub = mapped
+	} else {
+		err = fmt.Errorf("config retriever get failed, format is unsupported")
+		return
+	}
 
-	mergedConfig, mergeErr := retriever.merge(retriever.format, root, sub)
+	merged, mergeErr := retriever.merge(root, sub)
 	if mergeErr != nil {
 		err = fmt.Errorf("config retriever get failed, merge ative failed %v", mergeErr)
 		return
 	}
 
-	config = mergedConfig
+	v = merged
 	return
 }
 
-func (retriever *Retriever) merge(format string, root []byte, sub []byte) (config Config, err error) {
-	if format == "JSON" {
-		config, err = retriever.mergeJson(root, sub)
-	} else if format == "YAML" {
-		config, err = retriever.mergeYaml(root, sub)
-	} else {
-		err = fmt.Errorf("format is unsupported")
-		return
-	}
-	return
-}
-
-func (retriever *Retriever) mergeJson(root []byte, sub []byte) (config Config, err error) {
+func (retriever *Retriever) merge(root []byte, sub []byte) (v Config, err error) {
 	if !gjson.ValidBytes(root) {
 		err = fmt.Errorf("merge failed, bad json content")
 		return
@@ -140,35 +153,8 @@ func (retriever *Retriever) mergeJson(root []byte, sub []byte) (config Config, e
 		root = root0
 		return true
 	})
-	config = &JsonConfig{
+	v = &config{
 		raw: root,
-	}
-	return
-}
-
-func (retriever Retriever) mergeYaml(root []byte, sub []byte) (config Config, err error) {
-	rootJson, rootToJsonErr := yaml.YAMLToJSON(root)
-	if rootToJsonErr != nil {
-		err = fmt.Errorf("merge failed, content format is not supported, %v", rootToJsonErr)
-		return
-	}
-	subJson, subToJsonErr := yaml.YAMLToJSON(sub)
-	if subToJsonErr != nil {
-		err = fmt.Errorf("merge failed, content format is not supported, %v", subToJsonErr)
-		return
-	}
-	jsonConfig, mergeJsonErr := retriever.mergeJson(rootJson, subJson)
-	if mergeJsonErr != nil {
-		err = mergeJsonErr
-		return
-	}
-	yamlContent, toYamlErr := yaml.JSONToYAML(jsonConfig.Raw())
-	if toYamlErr != nil {
-		err = fmt.Errorf("merge failed, transfer failed, %v", toYamlErr)
-		return
-	}
-	config = &YamlConfig{
-		raw: yamlContent,
 	}
 	return
 }

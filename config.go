@@ -47,3 +47,11 @@ func (config *config) Get(path string, v interface{}) (has bool, err error) {
 }
 
 type Raw json.RawMessage
+
+func (r Raw) As(v interface{}) (err error) {
+	decodeErr := json.Unmarshal(r, v)
+	if decodeErr != nil {
+		err = fmt.Errorf("raw config as %s failed", reflect.TypeOf(v).String())
+	}
+	return
+}

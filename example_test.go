@@ -20,6 +20,7 @@ import (
 	"github.com/aacfactory/configuares"
 	"github.com/aacfactory/json"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -55,6 +56,11 @@ func Test_JsonConfig(t *testing.T) {
 	_ = config.As(&raw)
 
 	t.Log(string(raw))
+
+	ss := "\n\rsss\n\r"
+
+	t.Log(ss)
+	t.Log(strings.TrimSpace(ss))
 }
 
 func Test_YamlConfig(t *testing.T) {

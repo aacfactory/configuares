@@ -17,6 +17,7 @@
 package configuares
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/aacfactory/json"
 	"github.com/goccy/go-yaml"
@@ -80,7 +81,7 @@ func (retriever *Retriever) Get() (v Config, err error) {
 			err = fmt.Errorf("config retriever get failed, invalid yaml content")
 			return
 		}
-		root = mapped
+		root = bytes.TrimSpace(mapped)
 	} else {
 		err = fmt.Errorf("config retriever get failed, format is unsupported")
 		return
@@ -118,7 +119,7 @@ func (retriever *Retriever) Get() (v Config, err error) {
 			err = fmt.Errorf("config retriever get failed, invalid yaml content")
 			return
 		}
-		sub = mapped
+		sub = bytes.TrimSpace(mapped)
 	} else {
 		err = fmt.Errorf("config retriever get failed, format is unsupported")
 		return

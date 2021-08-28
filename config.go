@@ -13,8 +13,14 @@ type config struct {
 
 func (config *config) As(v interface{}) (err error) {
 	switch v.(type) {
-	case *Raw, *json.RawMessage, *[]byte:
+	case *Raw:
 		p := v.(*Raw)
+		*p = append((*p)[0:0], config.raw...)
+	case *json.RawMessage:
+		p := v.(*json.RawMessage)
+		*p = append((*p)[0:0], config.raw...)
+	case *[]byte:
+		p := v.(*[]byte)
 		*p = append((*p)[0:0], config.raw...)
 	default:
 		decodeErr := json.Unmarshal(config.raw, v)
@@ -32,9 +38,15 @@ func (config *config) Get(path string, v interface{}) (has bool, err error) {
 		return
 	}
 	switch v.(type) {
-	case *Raw, *json.RawMessage, *[]byte:
+	case *Raw:
 		p := v.(*Raw)
-		*p = append((*p)[0:0], result.Raw...)
+		*p = append((*p)[0:0], config.raw...)
+	case *json.RawMessage:
+		p := v.(*json.RawMessage)
+		*p = append((*p)[0:0], config.raw...)
+	case *[]byte:
+		p := v.(*[]byte)
+		*p = append((*p)[0:0], config.raw...)
 	default:
 		decodeErr := json.Unmarshal([]byte(result.Raw), v)
 		if decodeErr != nil {

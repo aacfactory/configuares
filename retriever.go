@@ -146,15 +146,63 @@ func (retriever *Retriever) merge(root []byte, sub []byte) (v Config, err error)
 	}
 	subResult := gjson.ParseBytes(sub)
 	subResult.ForEach(func(key gjson.Result, value gjson.Result) bool {
-		root0, setErr := sjson.SetRawBytes(root, key.String(), []byte(value.Raw))
-		if setErr != nil {
-			return false
-		}
-		root = root0
+		root = merge(root, key.String(), value)
 		return true
 	})
 	v = &config{
 		raw: root,
 	}
+	return
+}
+
+func merge(dst []byte, srcKey string, srcValue gjson.Result) (result []byte) {
+	switch srcValue.Type {
+	case gjson.String, gjson.Number, gjson.True, gjson.False:
+		affected, setErr := sjson.SetRawBytes(dst, srcKey, []byte(srcValue.Raw))
+		if setErr != nil {
+			result = dst
+			return
+		}
+		result = affected
+	case gjson.JSON:
+		if srcValue.IsArray() {
+			affected, setErr := sjson.SetRawBytes(dst, srcKey, []byte(srcValue.Raw))
+			if setErr != nil {
+				result = dst
+				return
+			}
+			result = affected
+			return
+		}
+		if srcValue.IsObject() {
+			dstSub := gjson.GetBytes(dst, srcKey)
+			if !dstSub.Exists() {
+				affected, setErr := sjson.SetRawBytes(dst, srcKey, []byte(srcValue.Raw))
+				if setErr != nil {
+					result = dst
+					return
+				}
+				result = affected
+				return
+			}
+
+			dstSubRas := []byte(dstSub.Raw)
+			srcValue.ForEach(func(key, value gjson.Result) bool {
+				dstSubRas = merge(dstSubRas, key.Str, value)
+				return true
+			})
+
+			affected, setErr := sjson.SetRawBytes(dst, srcKey, dstSubRas)
+			if setErr != nil {
+				result = dst
+				return
+			}
+			result = affected
+
+		}
+	default:
+		result = dst
+	}
+
 	return
 }

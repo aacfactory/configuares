@@ -1,3 +1,6 @@
 {
-  "name": "hello"
+  "name": "hello",
+  "http": {
+    "foo": "bb"
+  }
 }

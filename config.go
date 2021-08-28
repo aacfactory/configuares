@@ -1,8 +1,8 @@
 package configuares
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/aacfactory/json"
 	"github.com/tidwall/gjson"
 	"reflect"
 )

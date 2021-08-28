@@ -17,8 +17,8 @@
 package configuares_test
 
 import (
-	"encoding/json"
 	"github.com/aacfactory/configuares"
+	"github.com/aacfactory/json"
 	"path/filepath"
 	"testing"
 )

@@ -18,9 +18,8 @@ package configuares
 
 import (
 	"fmt"
+	"github.com/aacfactory/json"
 	"github.com/goccy/go-yaml"
-	"github.com/tidwall/gjson"
-	"github.com/tidwall/sjson"
 	"strings"
 )
 
@@ -67,7 +66,7 @@ func (retriever *Retriever) Get() (v Config, err error) {
 	}
 
 	if retriever.format == "JSON" {
-		if !gjson.ValidBytes(root) {
+		if !json.Validate(root) {
 			err = fmt.Errorf(" config retriever get failed, invalid json content")
 			return
 		}
@@ -77,7 +76,7 @@ func (retriever *Retriever) Get() (v Config, err error) {
 			err = fmt.Errorf("config retriever get failed, invalid yaml content")
 			return
 		}
-		if !gjson.ValidBytes(mapped) {
+		if !json.Validate(mapped) {
 			err = fmt.Errorf("config retriever get failed, invalid yaml content")
 			return
 		}
@@ -105,7 +104,7 @@ func (retriever *Retriever) Get() (v Config, err error) {
 		return
 	}
 	if retriever.format == "JSON" {
-		if !gjson.ValidBytes(sub) {
+		if !json.Validate(sub) {
 			err = fmt.Errorf(" config retriever get failed, invalid json content")
 			return
 		}
@@ -115,7 +114,7 @@ func (retriever *Retriever) Get() (v Config, err error) {
 			err = fmt.Errorf("config retriever get failed, invalid yaml content")
 			return
 		}
-		if !gjson.ValidBytes(mapped) {
+		if !json.Validate(mapped) {
 			err = fmt.Errorf("config retriever get failed, invalid yaml content")
 			return
 		}
@@ -136,73 +135,22 @@ func (retriever *Retriever) Get() (v Config, err error) {
 }
 
 func (retriever *Retriever) merge(root []byte, sub []byte) (v Config, err error) {
-	if !gjson.ValidBytes(root) {
+	if !json.Validate(root) {
 		err = fmt.Errorf("merge failed, bad json content")
 		return
 	}
-	if !gjson.ValidBytes(sub) {
+	if !json.Validate(sub) {
 		err = fmt.Errorf("merge failed, bad json content")
 		return
 	}
-	subResult := gjson.ParseBytes(sub)
-	subResult.ForEach(func(key gjson.Result, value gjson.Result) bool {
-		root = merge(root, key.String(), value)
-		return true
-	})
+	dst := json.NewObjectFromBytes(root)
+	src := json.NewObjectFromBytes(sub)
+	err = dst.Merge(src)
+	if err != nil {
+		return
+	}
 	v = &config{
-		raw: root,
+		raw: dst.Raw(),
 	}
-	return
-}
-
-func merge(dst []byte, srcKey string, srcValue gjson.Result) (result []byte) {
-	switch srcValue.Type {
-	case gjson.String, gjson.Number, gjson.True, gjson.False:
-		affected, setErr := sjson.SetRawBytes(dst, srcKey, []byte(srcValue.Raw))
-		if setErr != nil {
-			result = dst
-			return
-		}
-		result = affected
-	case gjson.JSON:
-		if srcValue.IsArray() {
-			affected, setErr := sjson.SetRawBytes(dst, srcKey, []byte(srcValue.Raw))
-			if setErr != nil {
-				result = dst
-				return
-			}
-			result = affected
-			return
-		}
-		if srcValue.IsObject() {
-			dstSub := gjson.GetBytes(dst, srcKey)
-			if !dstSub.Exists() {
-				affected, setErr := sjson.SetRawBytes(dst, srcKey, []byte(srcValue.Raw))
-				if setErr != nil {
-					result = dst
-					return
-				}
-				result = affected
-				return
-			}
-
-			dstSubRas := []byte(dstSub.Raw)
-			srcValue.ForEach(func(key, value gjson.Result) bool {
-				dstSubRas = merge(dstSubRas, key.Str, value)
-				return true
-			})
-
-			affected, setErr := sjson.SetRawBytes(dst, srcKey, dstSubRas)
-			if setErr != nil {
-				result = dst
-				return
-			}
-			result = affected
-
-		}
-	default:
-		result = dst
-	}
-
 	return
 }

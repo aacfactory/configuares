@@ -1,6 +1,7 @@
 package configuares
 
 import (
+	"errors"
 	"fmt"
 	"github.com/aacfactory/json"
 	"github.com/tidwall/gjson"
@@ -66,4 +67,25 @@ func (r Raw) As(v interface{}) (err error) {
 		err = fmt.Errorf("raw config as %s failed", reflect.TypeOf(v).String())
 	}
 	return
+}
+
+func (r Raw) MarshalJSON() ([]byte, error) {
+	if r == nil {
+		return []byte("null"), nil
+	}
+	if !json.Validate(r) {
+		return nil, errors.New("configuares.Raw: MarshalJSON on invalid message")
+	}
+	return r, nil
+}
+
+func (r *Raw) UnmarshalJSON(data []byte) error {
+	if r == nil {
+		return errors.New("configuares.Raw: UnmarshalJSON on nil pointer")
+	}
+	if !json.Validate(data) {
+		return errors.New("configuares.Raw: UnmarshalJSON on invalid message")
+	}
+	*r = append((*r)[0:0], data...)
+	return nil
 }

@@ -17,6 +17,7 @@
 package configuares
 
 type Config interface {
+	Raw() []byte
 	As(v interface{}) (err error)
 	Get(path string, v interface{}) (has bool, err error)
 }

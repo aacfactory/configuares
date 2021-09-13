@@ -12,6 +12,10 @@ type config struct {
 	raw []byte
 }
 
+func (config *config) Raw() []byte {
+	return config.raw
+}
+
 func (config *config) As(v interface{}) (err error) {
 	switch v.(type) {
 	case *Raw:

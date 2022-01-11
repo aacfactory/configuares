@@ -61,6 +61,8 @@ func Test_JsonConfig(t *testing.T) {
 
 	t.Log(ss)
 	t.Log(strings.TrimSpace(ss))
+
+	t.Log(config.Node("http"))
 }
 
 func Test_YamlConfig(t *testing.T) {

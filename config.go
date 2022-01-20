@@ -45,13 +45,13 @@ func (c *config) Get(path string, v interface{}) (has bool, err error) {
 	switch v.(type) {
 	case *Raw:
 		p := v.(*Raw)
-		*p = append((*p)[0:0], c.raw...)
+		*p = append((*p)[0:0], []byte(result.Raw)...)
 	case *json.RawMessage:
 		p := v.(*json.RawMessage)
-		*p = append((*p)[0:0], c.raw...)
+		*p = append((*p)[0:0], []byte(result.Raw)...)
 	case *[]byte:
 		p := v.(*[]byte)
-		*p = append((*p)[0:0], c.raw...)
+		*p = append((*p)[0:0], []byte(result.Raw)...)
 	default:
 		decodeErr := json.Unmarshal([]byte(result.Raw), v)
 		if decodeErr != nil {

@@ -4,9 +4,33 @@ import (
 	"errors"
 	"fmt"
 	"github.com/aacfactory/json"
+	"github.com/goccy/go-yaml"
 	"github.com/tidwall/gjson"
 	"reflect"
 )
+
+func NewJsonConfig(raw []byte) (v Config, err error) {
+	if !json.Validate(raw) {
+		err = fmt.Errorf("new json config failed, content is invalid")
+		return
+	}
+	v = &config{
+		raw: raw,
+	}
+	return
+}
+
+func NewYamlConfig(raw []byte) (v Config, err error) {
+	p, mapErr := yaml.YAMLToJSON(raw)
+	if mapErr != nil {
+		err = fmt.Errorf("new yaml config failed, content is invalid")
+		return
+	}
+	v = &config{
+		raw: p,
+	}
+	return
+}
 
 type config struct {
 	raw []byte

@@ -20,7 +20,6 @@ import (
 	"github.com/aacfactory/configuares"
 	"github.com/aacfactory/json"
 	"path/filepath"
-	"strings"
 	"testing"
 )
 
@@ -56,11 +55,6 @@ func Test_JsonConfig(t *testing.T) {
 	_ = config.As(&raw)
 
 	t.Log(string(raw))
-
-	ss := "\n\rsss\n\r"
-
-	t.Log(ss)
-	t.Log(strings.TrimSpace(ss))
 
 	node, _ := config.Node("http")
 	t.Log(string(node.Raw()))

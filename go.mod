@@ -4,8 +4,8 @@ go 1.17
 
 require (
 	github.com/aacfactory/json v1.5.0
-	github.com/goccy/go-yaml v1.9.4
-	github.com/tidwall/gjson v1.12.1
+	github.com/goccy/go-yaml v1.9.5
+	github.com/tidwall/gjson v1.14.1
 )
 
 require (

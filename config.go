@@ -1,4 +1,4 @@
-package configuares
+package configures
 
 import (
 	"errors"

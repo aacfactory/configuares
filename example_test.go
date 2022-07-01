@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package configuares_test
+package configures_test
 
 import (
-	"github.com/aacfactory/configuares"
+	"github.com/aacfactory/configures"
 	"github.com/aacfactory/json"
 	"path/filepath"
 	"testing"
@@ -32,9 +32,9 @@ func Test_JsonConfig(t *testing.T) {
 	}
 	t.Log("config dir", path)
 
-	store := configuares.NewFileStore(path, "app", '.')
+	store := configures.NewFileStore(path, "app", '.')
 
-	retriever, retrieverErr := configuares.NewRetriever(configuares.RetrieverOption{
+	retriever, retrieverErr := configures.NewRetriever(configures.RetrieverOption{
 		Active: "dev",
 		Format: "JSON",
 		Store:  store,
@@ -69,9 +69,9 @@ func Test_YamlConfig(t *testing.T) {
 	}
 	t.Log("config dir", path)
 
-	store := configuares.NewFileStore(path, "app", '-')
+	store := configures.NewFileStore(path, "app", '-')
 
-	retriever, retrieverErr := configuares.NewRetriever(configuares.RetrieverOption{
+	retriever, retrieverErr := configures.NewRetriever(configures.RetrieverOption{
 		Active: "prod",
 		Format: "YAML",
 		Store:  store,
@@ -93,7 +93,7 @@ func Test_YamlConfig(t *testing.T) {
 
 	t.Log(string(raw))
 
-	http := configuares.Raw{}
+	http := configures.Raw{}
 	has, getErr := config.Get("http", &http)
 	t.Log(string(http), has, getErr)
 }

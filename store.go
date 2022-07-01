@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package configuares
+package configures
 
 import (
 	"fmt"

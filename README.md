@@ -1,20 +1,21 @@
-# 概要
+# Configures
 
-配置工具
+Configures for Golang
 
-## 特性
+## Features
 
-* 开放：可根据实际情况进行额外扩展。
-* 多环境支持：指定激活的配置文件，并合并进根配置。
-* 多配置语言：当前支持 JSON 与 YAML 。
+* Open
+* Multi environment support。
+* Json
+* Yaml
 
-## 安装
+## Install
 
 ```go
-go get github.com/aacfactory/configuares
+go get github.com/aacfactory/configures
 ```
 
-## 使用
+## Usage
 
 ```go
 path, err := filepath.Abs("./_example/json")
@@ -23,11 +24,9 @@ if err != nil {
     return
 }
 
-// 构建配置存储器
-store := configuares.NewFileStore(path, "app", '.')
+store := configures.NewFileStore(path, "app", '.')
 
-// 构建配置读取器
-retriever, retrieverErr := configuares.NewRetriever(configuares.RetrieverOption{
+retriever, retrieverErr := configures.NewRetriever(configures.RetrieverOption{
     Active: "dev",
     Format: "JSON",
     Store:  store,
@@ -38,12 +37,10 @@ if retrieverErr != nil {
     return
 }
 
-// 获取配置内容
 config, configErr := retriever.Get()
 if configErr != nil {
     // handle error
     return
 }
-
 
 ```

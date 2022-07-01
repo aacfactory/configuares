@@ -1,9 +1,9 @@
-module github.com/aacfactory/configuares
+module github.com/aacfactory/configures
 
-go 1.17
+go 1.18
 
 require (
-	github.com/aacfactory/json v1.12.0
+	github.com/aacfactory/json v1.12.1
 	github.com/goccy/go-yaml v1.9.5
 	github.com/tidwall/gjson v1.14.1
 )

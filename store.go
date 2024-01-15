@@ -19,7 +19,6 @@ package configures
 import (
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -52,7 +51,7 @@ func (store *FileStore) Read() (root []byte, subs map[string][]byte, err error) 
 	}
 	if !fileStat.IsDir() {
 		_ = file.Close()
-		fileContent, readErr := ioutil.ReadFile(store.configPath)
+		fileContent, readErr := os.ReadFile(store.configPath)
 		if readErr != nil {
 			err = fmt.Errorf("config file store read %s failed, %v", store.configPath, readErr)
 			return
@@ -69,7 +68,7 @@ func (store *FileStore) Read() (root []byte, subs map[string][]byte, err error) 
 		if strings.Index(filename, store.prefix) != 0 {
 			return
 		}
-		fileContent, readErr := ioutil.ReadFile(path)
+		fileContent, readErr := os.ReadFile(path)
 		if readErr != nil {
 			err = fmt.Errorf("read %s failed, %v", path, readErr)
 			return

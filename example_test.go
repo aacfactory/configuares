@@ -17,10 +17,12 @@
 package configures_test
 
 import (
+	"fmt"
 	"github.com/aacfactory/configures"
 	"github.com/aacfactory/json"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 func Test_JsonConfig(t *testing.T) {
@@ -58,6 +60,9 @@ func Test_JsonConfig(t *testing.T) {
 
 	node, _ := config.Node("http")
 	t.Log(string(node.Raw()))
+	http := Http{}
+	has, getErr := config.Get("http", &http)
+	t.Log(fmt.Sprintf("%+v", http), has, getErr)
 }
 
 func Test_YamlConfig(t *testing.T) {
@@ -93,7 +98,13 @@ func Test_YamlConfig(t *testing.T) {
 
 	t.Log(string(raw))
 
-	http := configures.Raw{}
+	http := Http{}
 	has, getErr := config.Get("http", &http)
-	t.Log(string(http), has, getErr)
+	t.Log(fmt.Sprintf("%+v", http), has, getErr)
+}
+
+type Http struct {
+	Timeout time.Duration `json:"timeout"`
+	Port    int           `json:"port"`
+	Host    string        `json:"host"`
 }

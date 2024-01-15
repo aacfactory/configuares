@@ -1,1 +1,3 @@
 name: "hello"
+http:
+  timeout: "1s"
